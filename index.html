@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jake Hockey | Support the Vision</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-glow: rgba(99, 102, 241, 0.6);
+            --secondary-glow: rgba(236, 72, 153, 0.6);
+            --accent-glow: rgba(34, 211, 238, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Animated Background */
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(34, 211, 238, 0.1) 0%, transparent 50%);
+            animation: gradientShift 20s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* Glass Morphism Base */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 8px 32px 0 rgba(0, 0, 0, 0.37),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-hover:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(99, 102, 241, 0.3),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Floating Animation */
+        .float {
+            animation: floating 6s ease-in-out infinite;
+        }
+
+        .float-delayed {
+            animation: floating 6s ease-in-out infinite;
+            animation-delay: -3s;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Glow Effects */
+        .glow-text {
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.5),
+                0 0 20px rgba(99, 102, 241, 0.3),
+                0 0 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .glow-border {
+            position: relative;
+        }
+
+        .glow-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(45deg, #6366f1, #ec4899, #22d3ee, #6366f1);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s;
+            animation: rotate 4s linear infinite;
+            background-size: 400% 400%;
+        }
+
+        .glow-border:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes rotate {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.8);
+            transition: transform 0.2s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        /* Particle Canvas */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #6366f1;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #6366f1;
+        }
+
+        /* Shimmer Effect */
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            100% { left: 100%; }
+        }
+
+        /* Pulse Ring */
+        .pulse-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(99, 102, 241, 0.5);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.8);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Dynamic Background -->
+    <div class="gradient-bg"></div>
+    <canvas id="particles"></canvas>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center font-bold text-xl glow-border">
+                    JH
+                </div>
+                <span class="font-display font-bold text-xl tracking-tight">Jake Hockey</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+                <a href="#" class="hover:text-white transition-colors">Content</a>
+                <a href="#" class="hover:text-white transition-colors">Community</a>
+                <a href="#" class="hover:text-white transition-colors">About</a>
+                <button class="px-6 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10">
+                    Sign In
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 px-6 overflow-hidden">
+        <div class="max-w-6xl mx-auto text-center relative z-10">
+            <!-- Floating Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 float shimmer">
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                <span class="text-sm font-medium text-gray-300">Currently creating exclusive content</span>
+            </div>
+
+            <h1 class="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight glow-text opacity-0" id="hero-title">
+                Fuel the <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Future</span>
+            </h1>
+            
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed opacity-0" id="hero-subtitle">
+                Join Jake Hockey's inner circle. Support independent creation and unlock premium content, 
+                direct access, and exclusive community perks.
+            </p>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-16">
+                <div class="glass rounded-2xl p-6 glass-hover float">
+                    <div class="text-3xl font-display font-bold text-indigo-400 mb-1">2.4k</div>
+                    <div class="text-sm text-gray-400">Supporters</div>
+                </div>
+                <div class="glass rounded-2xl p-6 glass-hover float-delayed">
+                    <div class="text-3xl font-display font-bold text-pink-400 mb-1">148</div>
+                    <div class="text-sm text-gray-400">Exclusive Posts</div>
+                </div>
+                <div class="glass rounded-2xl p-6 glass-hover float">
+                    <div class="text-3xl font-display font-bold text-cyan-400 mb-1">24/7</div>
+                    <div class="text-sm text-gray-400">Community Access</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Tiers Section -->
+    <section class="py-20 px-6 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl font-bold mb-4">Choose Your Support Level</h2>
+                <p class="text-gray-400">Join the community that keeps the content flowing</p>
+            </div>
+
+            <!-- Toggle -->
+            <div class="flex justify-center items-center gap-4 mb-12">
+                <span class="text-sm font-medium text-gray-300" id="monthly-label">Monthly</span>
+                <div class="relative inline-block w-14 h-8 align-middle select-none">
+                    <input type="checkbox" id="billing-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-transparent appearance-none cursor-pointer transition-all duration-300 left-1 top-1">
+                    <label for="billing-toggle" class="toggle-label block overflow-hidden h-8 rounded-full bg-gray-700 cursor-pointer transition-colors duration-300"></label>
+                </div>
+                <span class="text-sm font-medium text-gray-500" id="yearly-label">Yearly <span class="text-indigo-400 text-xs ml-1">Save 20%</span></span>
+            </div>
+
+            <!-- Pricing Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- Tier 1 -->
+                <div class="glass rounded-3xl p-8 glass-hover glow-border relative group" data-tier="1">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <div class="glass px-4 py-1 rounded-full text-xs font-bold tracking-wider uppercase">Starter</div>
+                    </div>
+                    
+                    <div class="mt-4 mb-6">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-5xl font-display font-bold price-amount" data-monthly="5" data-yearly="48">$5</span>
+                            <span class="text-gray-400 billing-period">/month</span>
+                        </div>
+                        <p class="text-sm text-gray-400 mt-2">Perfect for casual supporters</p>
+                    </div>
+
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Access to premium posts
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Community Discord access
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Monthly Q&A participation
+                        </li>
+                    </ul>
+
+                    <button class="w-full py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]">
+                        Select Starter
+                    </button>
+                </div>
+
+                <!-- Tier 2 - Featured -->
+                <div class="glass rounded-3xl p-8 glass-hover glow-border relative group transform scale-105 border-indigo-500/30" data-tier="2">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <div class="bg-gradient-to-r from-indigo-500 to-pink-500 px-4 py-1 rounded-full text-xs font-bold tracking-wider uppercase shadow-lg shadow-indigo-500/25">
+                            Most Popular
+                        </div>
+                    </div>
+                    
+                    <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent rounded-3xl pointer-events-none"></div>
+                    
+                    <div class="mt-4 mb-6 relative z-10">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400 price-amount" data-monthly="15" data-yearly="144">$15</span>
+                            <span class="text-gray-400 billing-period">/month</span>
+                        </div>
+                        <p class="text-sm text-gray-400 mt-2">For the true fans</p>
+                    </div>
+
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300 relative z-10">
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Everything in Starter
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Exclusive video content
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Direct message access
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Early access to all content
+                        </li>
+                    </ul>
+
+                    <button class="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-pink-600 font-semibold shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all hover:scale-[1.02] active:scale-[0.98] relative z-10">
+                        Join the Inner Circle
+                    </button>
+                </div>
+
+                <!-- Tier 3 -->
+                <div class="glass rounded-3xl p-8 glass-hover glow-border relative group" data-tier="3">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <div class="glass px-4 py-1 rounded-full text-xs font-bold tracking-wider uppercase border border-yellow-500/30 text-yellow-400">VIP</div>
+                    </div>
+                    
+                    <div class="mt-4 mb-6">
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-5xl font-display font-bold price-amount" data-monthly="50" data-yearly="480">$50</span>
+                            <span class="text-gray-400 billing-period">/month</span>
+                        </div>
+                        <p class="text-sm text-gray-400 mt-2">The ultimate experience</p>
+                    </div>
+
+                    <ul class="space-y-4 mb-8 text-sm text-gray-300">
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Everything in Fan
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Monthly 1-on-1 video call
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Custom content requests
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Merch discounts & drops
+                        </li>
+                    </ul>
+
+                    <button class="w-full py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]">
+                        Go VIP
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Custom Amount Section -->
+    <section class="py-20 px-6">
+        <div class="max-w-3xl mx-auto glass rounded-3xl p-8 md:p-12 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
+            
+            <div class="relative z-10">
+                <h3 class="font-display text-2xl font-bold mb-2">Custom Support</h3>
+                <p class="text-gray-400 mb-8">One-time contribution or flexible monthly amount</p>
+
+                <div class="space-y-6">
+                    <div class="flex gap-4 mb-6">
+                        <button class="flex-1 py-3 rounded-xl bg-white/10 border border-white/20 font-medium transition-all hover:bg-white/20 active-mode" id="one-time-btn">
+                            One-time
+                        </button>
+                        <button class="flex-1 py-3 rounded-xl bg-transparent border border-white/10 font-medium transition-all hover:bg-white/5 text-gray-400" id="monthly-btn">
+                            Monthly
+                        </button>
+                    </div>
+
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-2xl font-bold text-gray-400">$</span>
+                        <input type="number" id="custom-amount" placeholder="Enter amount" 
+                            class="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-2xl font-bold focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                            min="1">
+                    </div>
+
+                    <input type="range" min="5" max="500" value="25" class="w-full" id="amount-slider">
+
+                    <div class="flex justify-between text-xs text-gray-500 font-medium">
+                        <span>$5</span>
+                        <span>$250</span>
+                        <span>$500+</span>
+                    </div>
+
+                    <button class="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 font-bold text-lg shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all hover:scale-[1.02] active:scale-[0.98] mt-4">
+                        Support Jake Now
+                    </button>
+
+                    <p class="text-center text-xs text-gray-500 mt-4">
+                        Secure payment processing. Cancel anytime.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Perks Grid -->
+    <section class="py-20 px-6">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="font-display text-3xl font-bold text-center mb-12">What You Get</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass rounded-2xl p-6 text-center glass-hover group cursor-pointer">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+                        🎥
+                    </div>
+                    <h3 class="font-bold mb-2">Exclusive Videos</h3>
+                    <p class="text-sm text-gray-400">Behind-the-scenes and premium content not available anywhere else</p>
+                </div>
+
+                <div class="glass rounded-2xl p-6 text-center glass-hover group cursor-pointer">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-pink-500/20 to-rose-500/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+                        💬
+                    </div>
+                    <h3 class="font-bold mb-2">Direct Access</h3>
+                    <p class="text-sm text-gray-400">Chat directly with Jake in the private community Discord</p>
+                </div>
+
+                <div class="glass rounded-2xl p-6 text-center glass-hover group cursor-pointer">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+                        🎁
+                    </div>
+                    <h3 class="font-bold mb-2">Member Perks</h3>
+                    <p class="text-sm text-gray-400">Early access, merchandise discounts, and special giveaways</p>
+                </div>
+
+                <div class="glass rounded-2xl p-6 text-center glass-hover group cursor-pointer">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+                        🚀
+                    </div>
+                    <h3 class="font-bold mb-2">Influence</h3>
+                    <p class="text-sm text-gray-400">Vote on future content and shape the direction of the channel</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-20 px-6 overflow-hidden">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="font-display text-3xl font-bold text-center mb-12">Community Love</h2>
+            
+            <div class="flex gap-6 overflow-x-auto pb-4 snap-x" style="scrollbar-width: none; -ms-overflow-style: none;">
+                <div class="glass rounded-2xl p-6 min-w-[300px] md:min-w-[400px] snap-center">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400"></div>
+                        <div>
+                            <div class="font-bold">Sarah M.</div>
+                            <div class="text-xs text-gray-400">Supporter for 8 months</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 text-sm leading-relaxed">"The exclusive content alone is worth it, but the community Jake has built is incredible. Feels like family."</p>
+                </div>
+
+                <div class="glass rounded-2xl p-6 min-w-[300px] md:min-w-[400px] snap-center">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-rose-400"></div>
+                        <div>
+                            <div class="font-bold">Mike R.</div>
+                            <div class="text-xs text-gray-400">VIP Member</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 text-sm leading-relaxed">"Had my first 1-on-1 call last week. Jake actually cares about his community. Best investment I've made."</p>
+                </div>
+
+                <div class="glass rounded-2xl p-6 min-w-[300px] md:min-w-[400px] snap-center">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-blue-400"></div>
+                        <div>
+                            <div class="font-bold">Alex K.</div>
+                            <div class="text-xs text-gray-400">Supporter for 1 year</div>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 text-sm leading-relaxed">"Went from casual viewer to active community member. The Discord alone is worth the subscription."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-20 px-6">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="font-display text-3xl font-bold text-center mb-12">Questions?</h2>
+            
+            <div class="space-y-4" id="faq-container">
+                <div class="glass rounded-xl overflow-hidden">
+                    <button class="w-full px-6 py-4 text-left flex justify-between items-center faq-toggle">
+                        <span class="font-medium">Can I cancel anytime?</span>
+                        <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="px-6 pb-4 text-sm text-gray-400 hidden faq-content">
+                        Absolutely. You can cancel your subscription at any time with no questions asked. You'll continue to have access until the end of your billing period.
+                    </div>
+                </div>
+
+                <div class="glass rounded-xl overflow-hidden">
+                    <button class="w-full px-6 py-4 text-left flex justify-between items-center faq-toggle">
+                        <span class="font-medium">What payment methods are accepted?</span>
+                        <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="px-6 pb-4 text-sm text-gray-400 hidden faq-content">
+                        We accept all major credit cards, PayPal, Apple Pay, and Google Pay. All transactions are secure and encrypted.
+                    </div>
+                </div>
+
+                <div class="glass rounded-xl overflow-hidden">
+                    <button class="w-full px-6 py-4 text-left flex justify-between items-center faq-toggle">
+                        <span class="font-medium">How do I access the Discord?</span>
+                        <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="px-6 pb-4 text-sm text-gray-400 hidden faq-content">
+                        After subscribing, you'll receive an email with your exclusive Discord invite link. Just click and join!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 mt-20 py-12 px-6">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center font-bold text-sm">JH</div>
+                <span class="font-display font-bold">Jake Hockey</span>
+            </div>
+            
+            <div class="flex gap-6 text-sm text-gray-400">
+                <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms</a>
+                <a href="#" class="hover:text-white transition-colors">Contact</a>
+            </div>
+
+            <div class="text-sm text-gray-500">
+                © 2026 All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // GSAP Animations
+        gsap.to("#hero-title", { opacity: 1, y: 0, duration: 1, ease: "power3.out", delay: 0.2 });
+        gsap.to("#hero-subtitle", { opacity: 1, y: 0, duration: 1, ease: "power3.out", delay: 0.4 });
+
+        // Particle System
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            
+            draw() {
+                ctx.fillStyle = `rgba(99, 102, 241, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles();
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // Billing Toggle
+        const billingToggle = document.getElementById('billing-toggle');
+        const monthlyLabel = document.getElementById('monthly-label');
+        const yearlyLabel = document.getElementById('yearly-label');
+        const priceAmounts = document.querySelectorAll('.price-amount');
+        const billingPeriods = document.querySelectorAll('.billing-period');
+
+        billingToggle.addEventListener('change', function() {
+            const isYearly = this.checked;
+            
+            monthlyLabel.classList.toggle('text-gray-500', isYearly);
+            monthlyLabel.classList.toggle('text-gray-300', !isYearly);
+            yearlyLabel.classList.toggle('text-indigo-400', isYearly);
+            yearlyLabel.classList.toggle('text-gray-500', !isYearly);
+
+            priceAmounts.forEach(price => {
+                const amount = isYearly ? price.dataset.yearly : price.dataset.monthly;
+                price.textContent = '$' + amount;
+            });
+
+            billingPeriods.forEach(period => {
+                period.textContent = isYearly ? '/year' : '/month';
+            });
+        });
+
+        // Custom Amount Slider
+        const slider = document.getElementById('amount-slider');
+        const customInput = document.getElementById('custom-amount');
+        
+        slider.addEventListener('input', function() {
+            customInput.value = this.value;
+        });
+
+        customInput.addEventListener('input', function() {
+            slider.value = this.value;
+        });
+
+        // One-time vs Monthly toggle
+        const oneTimeBtn = document.getElementById('one-time-btn');
+        const monthlyBtn = document.getElementById('monthly-btn');
+
+        oneTimeBtn.addEventListener('click', function() {
+            this.classList.add('bg-white/10', 'border-white/20', 'text-white');
+            this.classList.remove('bg-transparent', 'border-white/10', 'text-gray-400');
+            monthlyBtn.classList.remove('bg-white/10', 'border-white/20', 'text-white');
+            monthlyBtn.classList.add('bg-transparent', 'border-white/10', 'text-gray-400');
+        });
+
+        monthlyBtn.addEventListener('click', function() {
+            this.classList.add('bg-white/10', 'border-white/20', 'text-white');
+            this.classList.remove('bg-transparent', 'border-white/10', 'text-gray-400');
+            oneTimeBtn.classList.remove('bg-white/10', 'border-white/20', 'text-white');
+            oneTimeBtn.classList.add('bg-transparent', 'border-white/10', 'text-gray-400');
+        });
+
+        // FAQ Accordion
+        document.querySelectorAll('.faq-toggle').forEach(button => {
+            button.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const arrow = this.querySelector('svg');
+                
+                content.classList.toggle('hidden');
+                arrow.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        });
+
+        // 3D Tilt Effect for Cards
+        document.querySelectorAll('.glass-hover').forEach(card => {
+            card.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-2px)`;
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+            });
+        });
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.glass').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
